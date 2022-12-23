@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type User struct {
@@ -23,9 +24,14 @@ type DB struct {
 	*gorm.DB
 }
 
-func InitDB(url string) (DB, error) {
+func InitDB(url string, log logger.Interface) (DB, error) {
+	if log == nil {
+		log = logger.Default
+	}
 
-	gormDB, err := gorm.Open(postgres.Open(url))
+	gormDB, err := gorm.Open(postgres.Open(url), &gorm.Config{
+		Logger: log,
+	})
 	if err != nil {
 		return DB{}, err
 	}
