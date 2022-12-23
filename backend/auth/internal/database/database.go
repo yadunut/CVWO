@@ -1,23 +1,30 @@
 package database
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type User struct {
-	ID           uint `gorm:"primarykey"`
+	ID           uuid.UUID `gorm:"primarykey;type:uuid;default:gen_random_uuid()"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	DeletedAt    sql.NullTime `gorm:"index"`
-	email        string
+	DeletedAt    gorm.DeletedAt
+	Email        string
 	Username     string
-	PasswordSalt string
 	PasswordHash string
+}
+
+func NewUser(Email string, Username string, PasswordHash string) *User {
+	return &User{
+		Email:        Email,
+		Username:     Username,
+		PasswordHash: PasswordHash,
+	}
 }
 
 type DB struct {
