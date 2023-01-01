@@ -1,0 +1,73 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+interface BaseError {
+  message: String!
+}
+
+type User {
+  id: ID!
+  username: String!
+  bio: String!
+  threads: [Thread!]!
+  comments: [Comment!]!
+}
+
+type Thread {
+  id: ID!
+  owner: User!
+  title: String!
+  comments: [Comment!]!
+  likes: [User!]!
+}
+
+type Comment {
+  id: ID!
+  author: User!
+  message: String!
+  parent: Thread!
+}
+
+type Query {
+  threads: [Thread!]!
+}
+
+input RegisterInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+type SuccessfulRegistration {
+  token: String!
+}
+
+type InvalidRegistrationError implements BaseError {
+  message: String!
+}
+
+
+union RegisterResponse = SuccessfulRegistration | InvalidRegistrationError
+
+type SuccessfulLogin {
+  token: String!
+}
+
+type InvalidLoginError implements BaseError {
+  message: String!
+}
+
+
+union LoginResponse = SuccessfulLogin | InvalidLoginError
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+
+type Mutation {
+  register(input: RegisterInput): RegisterResponse
+  login(input: LoginInput): LoginResponse
+}

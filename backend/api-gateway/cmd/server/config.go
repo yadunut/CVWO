@@ -1,27 +1,34 @@
 package main
 
 import (
-	"github.com/spf13/viper"
+	"os"
+
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
-	Port string `mapstructure:"PORT"`
+	Port           string `default:"8080"`
+	AuthServiceUrl string `split_words:"true"`
 }
 
 func LoadConfig() (c Config, err error) {
-	viper.AddConfigPath("./pkg/config/envs")
-	viper.SetConfigName("dev")
-	viper.SetConfigType("env")
+	// only call load if .env exists
+	if _, err = os.Stat(".env"); !os.IsNotExist(err) {
+		err = godotenv.Load()
+		if err != nil {
+			return
+		}
 
-	viper.AutomaticEnv()
-
-	err = viper.ReadInConfig()
+	}
 
 	if err != nil {
 		return
 	}
 
-	err = viper.Unmarshal(&c)
-
+	err = envconfig.Process("CVWO", &c)
+	if err != nil {
+		return
+	}
 	return
 }
