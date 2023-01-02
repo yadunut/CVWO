@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"reflect"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -29,6 +31,15 @@ func LoadConfig() (c Config, err error) {
 	err = envconfig.Process("CVWO", &c)
 	if err != nil {
 		return
+	}
+
+	cRef := reflect.ValueOf(&c).Elem()
+	for i := 0; i < cRef.NumField(); i++ {
+		field := cRef.Field(i)
+		if field.IsZero() {
+			err = fmt.Errorf("%s cannot be empty", cRef.Type().Field(i).Name)
+			return
+		}
 	}
 	return
 }

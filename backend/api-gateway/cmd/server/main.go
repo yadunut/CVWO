@@ -9,12 +9,12 @@ import (
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
-const defaultPort = "8080"
-
 func initResolver(config Config) (*graph.Resolver, error) {
-	cc, err := grpc.Dial(config.AuthServiceUrl, grpc.WithInsecure())
+
+	cc, err := grpc.Dial(config.AuthServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
