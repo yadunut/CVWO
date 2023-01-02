@@ -23,6 +23,7 @@ import (
 type Config struct {
 	DatabaseUrl string `split_words:"true"`
 	Port        string `default:"8080"`
+	Host        string `default:"0.0.0.0"`
 }
 
 func main() {
@@ -44,7 +45,7 @@ func main() {
 	}
 	server := server.NewServer(db, log)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", config.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", config.Host, config.Port))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
@@ -54,7 +55,7 @@ func main() {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(grpc_zap.UnaryServerInterceptor(logger))),
 	)
 	proto.RegisterAuthServiceServer(grpcServer, server)
-  log.Infof("Serving grpcServer")
+	log.Infof("Serving grpcServer")
 	grpcServer.Serve(lis)
 
 }

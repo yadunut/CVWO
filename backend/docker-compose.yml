@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  gateway:
+    hostname: gateway
+    build: ./api-gateway
+    depends_on:
+      - auth
+    ports: 
+      - "8080:8080"
+    environment:
+      - CVWO_AUTH_SERVICE_URL=auth:8080
+
+    
+  auth:
+    hostname: auth
+    depends_on:
+       - database
+    build: ./auth
+    environment:
+      - CVWO_DATABASE_URL=postgres://postgres:password@database:5432
+    deploy: 
+      restart_policy:
+        delay: 3s
+        max_attempts: 10
+        window: 1s
+    networks:
+      cvwo:
+
+  database:
+    image: postgres:latest
+    hostname: database
+    environment:
+      - POSTGRES_PASSWORD=password
+    networks:
+      cvwo:
+
+networks:
+  cvwo:
