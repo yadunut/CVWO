@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"time"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/yadunut/CVWO/backend/auth/internal/database"
@@ -33,7 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Debugf("%s", config)
+	log.Infof("%s", config)
 
 	db, err := database.InitDB(config.DatabaseUrl, GormLogger{log})
 	if err != nil {
@@ -47,8 +49,12 @@ func main() {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(grpc_zap.StreamServerInterceptor(logger))),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(grpc_zap.UnaryServerInterceptor(logger))),
+	)
 	proto.RegisterAuthServiceServer(grpcServer, server)
+  log.Infof("Serving grpcServer")
 	grpcServer.Serve(lis)
 
 }

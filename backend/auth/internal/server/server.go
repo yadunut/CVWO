@@ -29,6 +29,7 @@ func NewServer(DB database.DB, log *zap.SugaredLogger) *Server {
 
 // Login implements proto.AuthServiceServer
 func (s *Server) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
+  s.log.Infof("Received Connection")
 	// check if its email or username
 	var user database.User
 	_, err := mail.ParseAddress(req.UsernameOrEmail)
@@ -56,6 +57,7 @@ func (s *Server) Login(ctx context.Context, req *proto.LoginRequest) (*proto.Log
 
 // Register implements proto.AuthServiceServer
 func (s *Server) Register(ctx context.Context, req *proto.RegisterRequest) (*proto.RegisterResponse, error) {
+  s.log.Infof("Received Connection")
 	_, err := mail.ParseAddress(req.Email)
 	if err != nil {
 		return &proto.RegisterResponse{Status: proto.ResponseStatus_FAILURE, Error: "invalid email address"}, nil
