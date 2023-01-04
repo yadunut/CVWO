@@ -1,8 +1,8 @@
 package graph
 
-import "github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
-
 //go:generate go run github.com/99designs/gqlgen generate
+
+import "github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
 
 // This file will not be regenerated automatically.
 //

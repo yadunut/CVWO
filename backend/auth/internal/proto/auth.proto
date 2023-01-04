@@ -42,4 +42,5 @@ message VerifyRequest { string token = 1; }
 message VerifyResponse {
   ResponseStatus status = 1;
   string message = 2;
+  string id = 3;
 }

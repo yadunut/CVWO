@@ -115,5 +115,5 @@ func (s *Server) Verify(ctx context.Context, req *proto.VerifyRequest) (*proto.V
 	if err != nil {
 		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
 	}
-	return &proto.VerifyResponse{Status: proto.ResponseStatus_SUCCESS}, nil
+	return &proto.VerifyResponse{Status: proto.ResponseStatus_SUCCESS, Id: id.String()}, nil
 }

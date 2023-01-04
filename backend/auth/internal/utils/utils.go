@@ -24,7 +24,7 @@ func ValidateUsername(s string) error {
 		return errors.New("username must be shorter than 10 characters")
 	}
 	if !IsAlphaNumeric(s) {
-		return errors.New(fmt.Sprintf("%s invalid, only alphabets and numbers allowed", s))
+		return fmt.Errorf("%s invalid, only alphabets and numbers allowed", s)
 	}
 	return nil
 }
@@ -63,14 +63,14 @@ func ParseJwtToken(encryptedToken string, config config.Config) (uuid.UUID, erro
 		return []byte(config.JwtSecret), nil
 	})
 	if err != nil {
-		return
+		return uuid.UUID{}, err
 	}
 	claims, ok := token.Claims.(*jwtClaims)
 	if !ok {
-		return nil, errors.New("Couldn't parse claims")
+		return uuid.UUID{}, errors.New("couldn't parse claims")
 	}
 	if claims.ExpiresAt < time.Now().Local().Unix() {
-		return nil, errors.New("JWT expired")
+		return uuid.UUID{}, errors.New("JWT expired")
 	}
 	return uuid.Parse(claims.Id)
 }

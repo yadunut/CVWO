@@ -7,6 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/config"
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph"
+	"github.com/yadunut/CVWO/backend/api-gateway/internal/middleware"
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -31,9 +32,10 @@ func main() {
 	}
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
+	authHandler := middleware.AuthMiddleware(resolver)
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", authHandler(srv))
 
 	log.Infof("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 	log.Fatal(http.ListenAndServe(":"+config.Port, nil))

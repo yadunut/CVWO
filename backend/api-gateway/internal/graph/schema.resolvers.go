@@ -31,7 +31,6 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterIn
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (model.LoginResponse, error) {
-
 	res, err := r.AuthClient.Login(ctx, &proto.LoginRequest{
 		UsernameOrEmail: input.Username,
 		Password:        input.Password,
