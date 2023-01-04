@@ -6,6 +6,7 @@ option go_package = "./internal/proto";
 service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Verify(VerifyRequest) returns (VerifyResponse) {}
 }
 
 enum ResponseStatus {
@@ -34,4 +35,11 @@ message LoginResponse {
   ResponseStatus status = 1;
   string error = 2;
   string token = 3;
+}
+
+message VerifyRequest { string token = 1; }
+
+message VerifyResponse {
+  ResponseStatus status = 1;
+  string message = 2;
 }
