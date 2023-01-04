@@ -3,6 +3,7 @@ module github.com/yadunut/CVWO/backend/auth
 go 1.19
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/joho/godotenv v1.4.0

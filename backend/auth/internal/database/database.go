@@ -19,8 +19,8 @@ type User struct {
 	PasswordHash string
 }
 
-func NewUser(Email string, Username string, PasswordHash string) *User {
-	return &User{
+func NewUser(Email string, Username string, PasswordHash string) User {
+	return User{
 		Email:        Email,
 		Username:     Username,
 		PasswordHash: PasswordHash,
@@ -31,7 +31,7 @@ type DB struct {
 	*gorm.DB
 }
 
-func InitDB(url string, log logger.Interface) (DB, error) {
+func Init(url string, log logger.Interface) (DB, error) {
 	if log == nil {
 		log = logger.Default
 	}

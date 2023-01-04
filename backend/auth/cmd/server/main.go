@@ -4,14 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os"
-	"reflect"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/yadunut/CVWO/backend/auth/internal/config"
 	"github.com/yadunut/CVWO/backend/auth/internal/database"
 	"github.com/yadunut/CVWO/backend/auth/internal/proto"
 	"github.com/yadunut/CVWO/backend/auth/internal/server"
@@ -24,6 +21,7 @@ type Config struct {
 	DatabaseUrl string `split_words:"true"`
 	Port        string `default:"8080"`
 	Host        string `default:"0.0.0.0"`
+	JwtSecret   string `split_words:"true"`
 }
 
 func main() {
@@ -31,19 +29,19 @@ func main() {
 	defer logger.Sync()
 	log := logger.Sugar()
 
-	config, err := loadConfig()
+	config, err := config.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	log.Infof("%s", config)
 
-	db, err := database.InitDB(config.DatabaseUrl, GormLogger{log})
+	db, err := database.Init(config.DatabaseUrl, GormLogger{log})
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
 	}
-	server := server.NewServer(db, log)
+	server := server.NewServer(db, log, config)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", config.Host, config.Port))
 	if err != nil {
@@ -58,30 +56,6 @@ func main() {
 	log.Infof("Serving grpcServer")
 	grpcServer.Serve(lis)
 
-}
-
-func loadConfig() (c Config, err error) {
-	// only call load if .env exists
-	if _, err = os.Stat(".env"); !os.IsNotExist(err) {
-		err = godotenv.Load()
-		if err != nil {
-			return
-		}
-
-	}
-	err = envconfig.Process("CVWO", &c)
-	if err != nil {
-		return
-	}
-	cRef := reflect.ValueOf(&c).Elem()
-	for i := 0; i < cRef.NumField(); i++ {
-		field := cRef.Field(i)
-		if field.IsZero() {
-			err = fmt.Errorf("%s cannot be empty", cRef.Type().Field(i).Name)
-			return
-		}
-	}
-	return
 }
 
 type GormLogger struct {

@@ -4,6 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+	"github.com/yadunut/CVWO/backend/auth/internal/config"
 )
 
 func IsAlphaNumeric(s string) bool {
@@ -33,4 +38,39 @@ func ValidatePassword(s string) error {
 	}
 
 	return nil
+}
+
+type jwtClaims struct {
+	jwt.StandardClaims
+	ID string
+}
+
+func GenerateJwtToken(id string, config config.Config) (string, error) {
+	claims := jwtClaims{
+		ID: id,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(config.JwtExpiry)).Unix(),
+			Issuer:    "CVWO",
+			NotBefore: time.Now().Local().Unix(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(config.JwtSecret)
+}
+
+func ParseJwtToken(encryptedToken string, config config.Config) (uuid.UUID, error) {
+	token, err := jwt.ParseWithClaims(encryptedToken, &jwtClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(config.JwtSecret), nil
+	})
+	if err != nil {
+		return
+	}
+	claims, ok := token.Claims.(*jwtClaims)
+	if !ok {
+		return nil, errors.New("Couldn't parse claims")
+	}
+	if claims.ExpiresAt < time.Now().Local().Unix() {
+		return nil, errors.New("JWT expired")
+	}
+	return uuid.Parse(claims.Id)
 }

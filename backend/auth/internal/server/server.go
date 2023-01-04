@@ -1,11 +1,12 @@
 package server
 
 import (
-	context "context"
+	"context"
 	"errors"
 	"net/mail"
 
 	"github.com/jackc/pgconn"
+	"github.com/yadunut/CVWO/backend/auth/internal/config"
 	"github.com/yadunut/CVWO/backend/auth/internal/database"
 	"github.com/yadunut/CVWO/backend/auth/internal/proto"
 	"github.com/yadunut/CVWO/backend/auth/internal/utils"
@@ -17,19 +18,21 @@ type Server struct {
 	DB  database.DB
 	log *zap.SugaredLogger
 	proto.UnimplementedAuthServiceServer
+	config config.Config
 }
 
-func NewServer(DB database.DB, log *zap.SugaredLogger) *Server {
+func NewServer(DB database.DB, log *zap.SugaredLogger, c config.Config) *Server {
 	return &Server{
 		DB:                             DB,
 		log:                            log,
 		UnimplementedAuthServiceServer: proto.UnimplementedAuthServiceServer{},
+		config:                         c,
 	}
 }
 
 // Login implements proto.AuthServiceServer
 func (s *Server) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
-  s.log.Infof("Received Connection")
+	s.log.Infof("Received Connection")
 	// check if its email or username
 	var user database.User
 	_, err := mail.ParseAddress(req.UsernameOrEmail)
@@ -50,14 +53,18 @@ func (s *Server) Login(ctx context.Context, req *proto.LoginRequest) (*proto.Log
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		return &proto.LoginResponse{Status: proto.ResponseStatus_FAILURE, Error: "username or password invalid"}, nil
 	}
-	// TODO: Generate Token
 
-	return &proto.LoginResponse{Status: proto.ResponseStatus_SUCCESS, Token: "Successful Login"}, nil
+	tokenString, err := utils.GenerateJwtToken(user.ID.String(), s.config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &proto.LoginResponse{Status: proto.ResponseStatus_SUCCESS, Token: tokenString}, nil
 }
 
 // Register implements proto.AuthServiceServer
 func (s *Server) Register(ctx context.Context, req *proto.RegisterRequest) (*proto.RegisterResponse, error) {
-  s.log.Infof("Received Connection")
+	s.log.Infof("Received Connection")
 	_, err := mail.ParseAddress(req.Email)
 	if err != nil {
 		return &proto.RegisterResponse{Status: proto.ResponseStatus_FAILURE, Error: "invalid email address"}, nil
@@ -76,7 +83,8 @@ func (s *Server) Register(ctx context.Context, req *proto.RegisterRequest) (*pro
 		s.log.Error(err)
 		return nil, err
 	}
-	if err = s.DB.Create(database.NewUser(req.Email, req.Username, string(hash))).Error; err != nil {
+	user := database.NewUser(req.Email, req.Username, string(hash))
+	if err = s.DB.Create(&user).Error; err != nil {
 		var pgError *pgconn.PgError
 		if errors.As(err, &pgError) {
 			// Postgres error for duplicate
@@ -89,7 +97,23 @@ func (s *Server) Register(ctx context.Context, req *proto.RegisterRequest) (*pro
 		s.log.Error(err)
 		return &proto.RegisterResponse{Status: proto.ResponseStatus_FAILURE, Error: err.Error()}, nil
 	}
-	// TODO: generate JWT / other auth token with expiry
+	tokenString, err := utils.GenerateJwtToken(user.ID.String(), s.config)
+	if err != nil {
+		return nil, err
+	}
 
-	return &proto.RegisterResponse{Status: proto.ResponseStatus_SUCCESS, Error: req.String(), Token: "Correct token!"}, nil
+	return &proto.RegisterResponse{Status: proto.ResponseStatus_SUCCESS, Error: req.String(), Token: tokenString}, nil
+}
+
+func (s *Server) Verify(ctx context.Context, req *proto.VerifyRequest) (*proto.VerifyResponse, error) {
+	id, err := utils.ParseJwtToken(req.Token, s.config)
+	if err != nil {
+		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
+	}
+	var user database.User
+	err = s.DB.Where(&database.User{ID: id}).First(&user).Error
+	if err != nil {
+		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
+	}
+	return &proto.VerifyResponse{Status: proto.ResponseStatus_SUCCESS}, nil
 }
