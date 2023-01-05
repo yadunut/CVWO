@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph/model"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
+	"github.com/yadunut/CVWO/backend/proto"
 )
 
 // Register is the resolver for the register field.

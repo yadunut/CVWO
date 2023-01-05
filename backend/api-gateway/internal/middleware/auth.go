@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
+	"github.com/yadunut/CVWO/backend/proto"
 )
 
 type key string

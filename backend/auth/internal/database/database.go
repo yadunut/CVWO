@@ -1,26 +1,14 @@
 package database
 
 import (
-	"time"
-
-	"github.com/google/uuid"
+	"github.com/yadunut/CVWO/backend/database/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-type User struct {
-	ID           uuid.UUID `gorm:"primarykey;type:uuid;default:gen_random_uuid()"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt
-	Email        string
-	Username     string
-	PasswordHash string
-}
-
-func NewUser(Email string, Username string, PasswordHash string) User {
-	return User{
+func NewUser(Email string, Username string, PasswordHash string) models.User {
+	return models.User{
 		Email:        Email,
 		Username:     Username,
 		PasswordHash: PasswordHash,

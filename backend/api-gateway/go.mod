@@ -8,9 +8,9 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/vektah/gqlparser/v2 v2.5.1
+	github.com/yadunut/CVWO/backend/proto v0.0.0
 	go.uber.org/zap v1.24.0
-	google.golang.org/grpc v1.50.1
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/grpc v1.51.0
 )
 
 require (
@@ -34,5 +34,8 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/yadunut/CVWO/backend/proto => ../proto

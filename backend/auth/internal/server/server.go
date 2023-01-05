@@ -8,8 +8,9 @@ import (
 	"github.com/jackc/pgconn"
 	"github.com/yadunut/CVWO/backend/auth/internal/config"
 	"github.com/yadunut/CVWO/backend/auth/internal/database"
-	"github.com/yadunut/CVWO/backend/auth/internal/proto"
 	"github.com/yadunut/CVWO/backend/auth/internal/utils"
+	"github.com/yadunut/CVWO/backend/database/models"
+	"github.com/yadunut/CVWO/backend/proto"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -34,13 +35,13 @@ func NewServer(DB database.DB, log *zap.SugaredLogger, c config.Config) *Server 
 func (s *Server) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
 	s.log.Infof("Received Connection")
 	// check if its email or username
-	var user database.User
+	var user models.User
 	_, err := mail.ParseAddress(req.UsernameOrEmail)
 	if err != nil {
 		err = nil
-		err = s.DB.Where(&database.User{Username: req.UsernameOrEmail}).First(&user).Error
+		err = s.DB.Where(&models.User{Username: req.UsernameOrEmail}).First(&user).Error
 	} else {
-		err = s.DB.Where(&database.User{Email: req.UsernameOrEmail}).First(&user).Error
+		err = s.DB.Where(&models.User{Email: req.UsernameOrEmail}).First(&user).Error
 	}
 
 	if err != nil {
@@ -110,8 +111,8 @@ func (s *Server) Verify(ctx context.Context, req *proto.VerifyRequest) (*proto.V
 	if err != nil {
 		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
 	}
-	var user database.User
-	err = s.DB.Where(&database.User{ID: id}).First(&user).Error
+	var user models.User
+	err = s.DB.Where(&models.User{ID: id}).First(&user).Error
 	if err != nil {
 		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
 	}

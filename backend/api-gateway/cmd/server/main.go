@@ -8,7 +8,7 @@ import (
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/config"
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph"
 	"github.com/yadunut/CVWO/backend/api-gateway/internal/middleware"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/proto"
+	"github.com/yadunut/CVWO/backend/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
