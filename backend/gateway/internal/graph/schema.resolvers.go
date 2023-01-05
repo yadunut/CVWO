@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph/model"
+	"github.com/yadunut/CVWO/backend/gateway/internal/graph/model"
 	"github.com/yadunut/CVWO/backend/proto"
 )
 

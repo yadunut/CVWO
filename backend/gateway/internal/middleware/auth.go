@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph"
+	"github.com/yadunut/CVWO/backend/gateway/internal/graph"
 	"github.com/yadunut/CVWO/backend/proto"
 )
 

@@ -5,9 +5,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/config"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/middleware"
+	"github.com/yadunut/CVWO/backend/gateway/internal/config"
+	"github.com/yadunut/CVWO/backend/gateway/internal/graph"
+	"github.com/yadunut/CVWO/backend/gateway/internal/middleware"
 	"github.com/yadunut/CVWO/backend/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

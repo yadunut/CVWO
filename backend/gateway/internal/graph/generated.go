@@ -16,7 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/yadunut/CVWO/backend/api-gateway/internal/graph/model"
+	"github.com/yadunut/CVWO/backend/gateway/internal/graph/model"
 )
 
 // region    ************************** generated!.gotpl **************************
