@@ -10,6 +10,8 @@ COPY . .
 
 RUN go build -o /out/gateway ./gateway/cmd/server
 RUN go build -o /out/auth ./auth/cmd/server
+RUN go build -o /out/user ./user/cmd/server
+RUN go build -o /out/thread ./thread/cmd/server
 
 FROM gcr.io/distroless/base-debian11
 

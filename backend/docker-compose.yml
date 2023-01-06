@@ -1,5 +1,12 @@
 version: "3.9"
 services:
+  database:
+    image: postgres:latest
+    hostname: database
+    environment:
+      - POSTGRES_PASSWORD=password
+    networks:
+      cvwo:
   gateway:
     hostname: gateway
     build: .
@@ -11,7 +18,6 @@ services:
     environment:
       - CVWO_AUTH_SERVICE_URL=auth:8080
 
-    
   auth:
     hostname: auth
     depends_on:
@@ -29,13 +35,37 @@ services:
     networks:
       cvwo:
 
-  database:
-    image: postgres:latest
-    hostname: database
+  user:
+    hostname: user
+    depends_on:
+       - database
+    build: .
+    command: ./user
     environment:
-      - POSTGRES_PASSWORD=password
+      - CVWO_DATABASE_URL=postgres://postgres:password@database:5432
+    deploy: 
+      restart_policy:
+        delay: 3s
+        max_attempts: 10
+        window: 1s
     networks:
       cvwo:
+  thread:
+    hostname: user
+    depends_on:
+       - database
+    build: .
+    command: ./user
+    environment:
+      - CVWO_DATABASE_URL=postgres://postgres:password@database:5432
+    deploy: 
+      restart_policy:
+        delay: 3s
+        max_attempts: 10
+        window: 1s
+    networks:
+      cvwo:
+
 
 networks:
   cvwo:

@@ -16,9 +16,9 @@ import (
 )
 
 type Server struct {
-	DB  database.DB
-	log *zap.SugaredLogger
 	proto.UnimplementedAuthServiceServer
+	DB     database.DB
+	log    *zap.SugaredLogger
 	config config.Config
 }
 
