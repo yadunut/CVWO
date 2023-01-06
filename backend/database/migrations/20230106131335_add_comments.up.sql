@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS comments(
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ,
+
+  owner_id UUID REFERENCES users ON DELETE CASCADE,
+  thread_id UUID REFERENCES threads ON DELETE CASCADE,
+  body TEXT NOT NULL
+)

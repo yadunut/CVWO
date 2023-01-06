@@ -7,8 +7,8 @@ import (
 
 	"github.com/jackc/pgconn"
 	"github.com/yadunut/CVWO/backend/auth/internal/config"
-	"github.com/yadunut/CVWO/backend/auth/internal/database"
 	"github.com/yadunut/CVWO/backend/auth/internal/utils"
+	"github.com/yadunut/CVWO/backend/database"
 	"github.com/yadunut/CVWO/backend/database/models"
 	"github.com/yadunut/CVWO/backend/proto"
 	"go.uber.org/zap"
@@ -84,7 +84,7 @@ func (s *Server) Register(ctx context.Context, req *proto.RegisterRequest) (*pro
 		s.log.Error(err)
 		return nil, err
 	}
-	user := database.NewUser(req.Email, req.Username, string(hash))
+	user := models.NewUser(req.Email, req.Username, string(hash))
 	if err = s.DB.Create(&user).Error; err != nil {
 		var pgError *pgconn.PgError
 		if errors.As(err, &pgError) {
@@ -112,7 +112,7 @@ func (s *Server) Verify(ctx context.Context, req *proto.VerifyRequest) (*proto.V
 		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
 	}
 	var user models.User
-	err = s.DB.Where(&models.User{ID: id}).First(&user).Error
+	err = s.DB.Where(&models.User{Model: models.Model{ID: id}}).First(&user).Error
 	if err != nil {
 		return &proto.VerifyResponse{Status: proto.ResponseStatus_FAILURE, Message: err.Error()}, nil
 	}

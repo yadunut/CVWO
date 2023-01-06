@@ -1,16 +1,16 @@
-CREATE TABLE IF NOT EXISTS users(
-  id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+CREATE TABLE IF NOT EXISTS threads(
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ,
 
-  email TEXT NOT NULL,
-  username TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL
+  owner_id UUID REFERENCES users ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL
 );
 
 CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON users
+BEFORE UPDATE ON threads
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
