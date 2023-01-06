@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package thread;
+option go_package = "../proto";
+
+service ThreadService {
+  rpc GetThread(GetThreadRequest) returns (GetThreadResponse) {}
+}
+message GetThreadRequest {}
+
+message GetThreadResponse {}

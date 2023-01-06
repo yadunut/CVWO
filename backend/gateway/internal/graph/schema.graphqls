@@ -29,9 +29,6 @@ type Comment {
   parent: Thread!
 }
 
-type Query {
-  threads: [Thread!]!
-}
 
 input RegisterInput {
   username: String!
@@ -70,4 +67,8 @@ input LoginInput {
 type Mutation {
   register(input: RegisterInput): RegisterResponse
   login(input: LoginInput): LoginResponse
+}
+
+type Query {
+  threads: [Thread!]!
 }
