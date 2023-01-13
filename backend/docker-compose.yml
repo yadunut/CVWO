@@ -5,11 +5,18 @@ services:
     hostname: database
     environment:
       - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
     networks:
       cvwo:
+
   gateway:
     hostname: gateway
     build: .
+    image: cvwo-backend:latest
     command: ./gateway
     depends_on:
       - auth
@@ -21,48 +28,39 @@ services:
   auth:
     hostname: auth
     depends_on:
-       - database
+      database:
+        condition: service_healthy
     build: .
+    image: cvwo-backend:latest
     command: ./auth
     environment:
       - CVWO_DATABASE_URL=postgres://postgres:password@database:5432
       - CVWO_JWT_SECRET=woah
-    deploy: 
-      restart_policy:
-        delay: 3s
-        max_attempts: 10
-        window: 1s
     networks:
       cvwo:
 
   user:
     hostname: user
     depends_on:
-       - database
+      database:
+        condition: service_healthy
     build: .
+    image: cvwo-backend:latest
     command: ./user
     environment:
       - CVWO_DATABASE_URL=postgres://postgres:password@database:5432
-    deploy: 
-      restart_policy:
-        delay: 3s
-        max_attempts: 10
-        window: 1s
     networks:
       cvwo:
   thread:
     hostname: user
     depends_on:
-       - database
+      database:
+        condition: service_healthy
     build: .
+    image: cvwo-backend:latest
     command: ./user
     environment:
       - CVWO_DATABASE_URL=postgres://postgres:password@database:5432
-    deploy: 
-      restart_policy:
-        delay: 3s
-        max_attempts: 10
-        window: 1s
     networks:
       cvwo:
 

@@ -38,7 +38,6 @@ func (s *Server) Login(ctx context.Context, req *proto.LoginRequest) (*proto.Log
 	var user models.User
 	_, err := mail.ParseAddress(req.UsernameOrEmail)
 	if err != nil {
-		err = nil
 		err = s.DB.Where(&models.User{Username: req.UsernameOrEmail}).First(&user).Error
 	} else {
 		err = s.DB.Where(&models.User{Email: req.UsernameOrEmail}).First(&user).Error
