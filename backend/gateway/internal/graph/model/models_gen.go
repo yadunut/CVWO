@@ -7,6 +7,14 @@ type BaseError interface {
 	GetMessage() string
 }
 
+type CreateCommentResponse interface {
+	IsCreateCommentResponse()
+}
+
+type CreateThreadResponse interface {
+	IsCreateThreadResponse()
+}
+
 type LoginResponse interface {
 	IsLoginResponse()
 }
@@ -21,6 +29,25 @@ type Comment struct {
 	Message string  `json:"message"`
 	Parent  *Thread `json:"parent"`
 }
+
+type CreateCommentInput struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+type CreateThreadInput struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+type InvalidCommentCreation struct {
+	Message string `json:"message"`
+}
+
+func (InvalidCommentCreation) IsCreateCommentResponse() {}
+
+func (InvalidCommentCreation) IsBaseError()            {}
+func (this InvalidCommentCreation) GetMessage() string { return this.Message }
 
 type InvalidLoginError struct {
 	Message string `json:"message"`
@@ -40,6 +67,15 @@ func (this InvalidRegistrationError) GetMessage() string { return this.Message }
 
 func (InvalidRegistrationError) IsRegisterResponse() {}
 
+type InvalidThreadCreation struct {
+	Message string `json:"message"`
+}
+
+func (InvalidThreadCreation) IsCreateThreadResponse() {}
+
+func (InvalidThreadCreation) IsBaseError()            {}
+func (this InvalidThreadCreation) GetMessage() string { return this.Message }
+
 type LoginInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -50,6 +86,12 @@ type RegisterInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+type SuccessfulCommentCreation struct {
+	Thread *Comment `json:"thread"`
+}
+
+func (SuccessfulCommentCreation) IsCreateCommentResponse() {}
 
 type SuccessfulLogin struct {
 	Token string `json:"token"`
@@ -62,6 +104,12 @@ type SuccessfulRegistration struct {
 }
 
 func (SuccessfulRegistration) IsRegisterResponse() {}
+
+type SuccessfulThreadCreation struct {
+	Thread *Thread `json:"thread"`
+}
+
+func (SuccessfulThreadCreation) IsCreateThreadResponse() {}
 
 type Thread struct {
 	ID       string     `json:"id"`

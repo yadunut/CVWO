@@ -45,6 +45,16 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (
 	}
 }
 
+// CreateThread is the resolver for the createThread field.
+func (r *mutationResolver) CreateThread(ctx context.Context, input *model.CreateThreadInput) (model.CreateThreadResponse, error) {
+	panic(fmt.Errorf("not implemented: CreateThread - createThread"))
+}
+
+// CreateComment is the resolver for the createComment field.
+func (r *mutationResolver) CreateComment(ctx context.Context, input *model.CreateCommentInput) (model.CreateCommentResponse, error) {
+	panic(fmt.Errorf("not implemented: CreateComment - createComment"))
+}
+
 // Threads is the resolver for the threads field.
 func (r *queryResolver) Threads(ctx context.Context) ([]*model.Thread, error) {
 	panic(fmt.Errorf("not implemented: Threads - threads"))

@@ -52,6 +52,10 @@ type ComplexityRoot struct {
 		Parent  func(childComplexity int) int
 	}
 
+	InvalidCommentCreation struct {
+		Message func(childComplexity int) int
+	}
+
 	InvalidLoginError struct {
 		Message func(childComplexity int) int
 	}
@@ -60,13 +64,23 @@ type ComplexityRoot struct {
 		Message func(childComplexity int) int
 	}
 
+	InvalidThreadCreation struct {
+		Message func(childComplexity int) int
+	}
+
 	Mutation struct {
-		Login    func(childComplexity int, input *model.LoginInput) int
-		Register func(childComplexity int, input *model.RegisterInput) int
+		CreateComment func(childComplexity int, input *model.CreateCommentInput) int
+		CreateThread  func(childComplexity int, input *model.CreateThreadInput) int
+		Login         func(childComplexity int, input *model.LoginInput) int
+		Register      func(childComplexity int, input *model.RegisterInput) int
 	}
 
 	Query struct {
 		Threads func(childComplexity int) int
+	}
+
+	SuccessfulCommentCreation struct {
+		Thread func(childComplexity int) int
 	}
 
 	SuccessfulLogin struct {
@@ -75,6 +89,10 @@ type ComplexityRoot struct {
 
 	SuccessfulRegistration struct {
 		Token func(childComplexity int) int
+	}
+
+	SuccessfulThreadCreation struct {
+		Thread func(childComplexity int) int
 	}
 
 	Thread struct {
@@ -97,6 +115,8 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Register(ctx context.Context, input *model.RegisterInput) (model.RegisterResponse, error)
 	Login(ctx context.Context, input *model.LoginInput) (model.LoginResponse, error)
+	CreateThread(ctx context.Context, input *model.CreateThreadInput) (model.CreateThreadResponse, error)
+	CreateComment(ctx context.Context, input *model.CreateCommentInput) (model.CreateCommentResponse, error)
 }
 type QueryResolver interface {
 	Threads(ctx context.Context) ([]*model.Thread, error)
@@ -145,6 +165,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Comment.Parent(childComplexity), true
 
+	case "InvalidCommentCreation.message":
+		if e.complexity.InvalidCommentCreation.Message == nil {
+			break
+		}
+
+		return e.complexity.InvalidCommentCreation.Message(childComplexity), true
+
 	case "InvalidLoginError.message":
 		if e.complexity.InvalidLoginError.Message == nil {
 			break
@@ -158,6 +185,37 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.InvalidRegistrationError.Message(childComplexity), true
+
+	case "InvalidThreadCreation.message":
+		if e.complexity.InvalidThreadCreation.Message == nil {
+			break
+		}
+
+		return e.complexity.InvalidThreadCreation.Message(childComplexity), true
+
+	case "Mutation.createComment":
+		if e.complexity.Mutation.CreateComment == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createComment_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateComment(childComplexity, args["input"].(*model.CreateCommentInput)), true
+
+	case "Mutation.createThread":
+		if e.complexity.Mutation.CreateThread == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createThread_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateThread(childComplexity, args["input"].(*model.CreateThreadInput)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -190,6 +248,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Threads(childComplexity), true
 
+	case "SuccessfulCommentCreation.thread":
+		if e.complexity.SuccessfulCommentCreation.Thread == nil {
+			break
+		}
+
+		return e.complexity.SuccessfulCommentCreation.Thread(childComplexity), true
+
 	case "SuccessfulLogin.token":
 		if e.complexity.SuccessfulLogin.Token == nil {
 			break
@@ -203,6 +268,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SuccessfulRegistration.Token(childComplexity), true
+
+	case "SuccessfulThreadCreation.thread":
+		if e.complexity.SuccessfulThreadCreation.Thread == nil {
+			break
+		}
+
+		return e.complexity.SuccessfulThreadCreation.Thread(childComplexity), true
 
 	case "Thread.comments":
 		if e.complexity.Thread.Comments == nil {
@@ -282,6 +354,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCreateCommentInput,
+		ec.unmarshalInputCreateThreadInput,
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputRegisterInput,
 	)
@@ -363,13 +437,43 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_createComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.CreateCommentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOCreateCommentInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateCommentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createThread_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.CreateThreadInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOCreateThreadInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateThreadInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *model.LoginInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOLoginInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
+		arg0, err = ec.unmarshalOLoginInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -384,7 +488,7 @@ func (ec *executionContext) field_Mutation_register_args(ctx context.Context, ra
 	var arg0 *model.RegisterInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalORegisterInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx, tmp)
+		arg0, err = ec.unmarshalORegisterInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -518,7 +622,7 @@ func (ec *executionContext) _Comment_author(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_author(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -618,7 +722,7 @@ func (ec *executionContext) _Comment_parent(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*model.Thread)
 	fc.Result = res
-	return ec.marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx, field.Selections, res)
+	return ec.marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -641,6 +745,50 @@ func (ec *executionContext) fieldContext_Comment_parent(ctx context.Context, fie
 				return ec.fieldContext_Thread_likes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Thread", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _InvalidCommentCreation_message(ctx context.Context, field graphql.CollectedField, obj *model.InvalidCommentCreation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_InvalidCommentCreation_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_InvalidCommentCreation_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InvalidCommentCreation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -734,6 +882,50 @@ func (ec *executionContext) fieldContext_InvalidRegistrationError_message(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _InvalidThreadCreation_message(ctx context.Context, field graphql.CollectedField, obj *model.InvalidThreadCreation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_InvalidThreadCreation_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_InvalidThreadCreation_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InvalidThreadCreation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_register(ctx, field)
 	if err != nil {
@@ -759,7 +951,7 @@ func (ec *executionContext) _Mutation_register(ctx context.Context, field graphq
 	}
 	res := resTmp.(model.RegisterResponse)
 	fc.Result = res
-	return ec.marshalORegisterResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐRegisterResponse(ctx, field.Selections, res)
+	return ec.marshalORegisterResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐRegisterResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_register(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -811,7 +1003,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(model.LoginResponse)
 	fc.Result = res
-	return ec.marshalOLoginResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐLoginResponse(ctx, field.Selections, res)
+	return ec.marshalOLoginResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐLoginResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -832,6 +1024,110 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createThread(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createThread(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateThread(rctx, fc.Args["input"].(*model.CreateThreadInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.CreateThreadResponse)
+	fc.Result = res
+	return ec.marshalOCreateThreadResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateThreadResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CreateThreadResponse does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createThread_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createComment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateComment(rctx, fc.Args["input"].(*model.CreateCommentInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.CreateCommentResponse)
+	fc.Result = res
+	return ec.marshalOCreateCommentResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateCommentResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CreateCommentResponse does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -866,7 +1162,7 @@ func (ec *executionContext) _Query_threads(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*model.Thread)
 	fc.Result = res
-	return ec.marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐThreadᚄ(ctx, field.Selections, res)
+	return ec.marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThreadᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_threads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1023,6 +1319,60 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _SuccessfulCommentCreation_thread(ctx context.Context, field graphql.CollectedField, obj *model.SuccessfulCommentCreation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SuccessfulCommentCreation_thread(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Thread, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Comment)
+	fc.Result = res
+	return ec.marshalNComment2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐComment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SuccessfulCommentCreation_thread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SuccessfulCommentCreation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Comment_id(ctx, field)
+			case "author":
+				return ec.fieldContext_Comment_author(ctx, field)
+			case "message":
+				return ec.fieldContext_Comment_message(ctx, field)
+			case "parent":
+				return ec.fieldContext_Comment_parent(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SuccessfulLogin_token(ctx context.Context, field graphql.CollectedField, obj *model.SuccessfulLogin) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SuccessfulLogin_token(ctx, field)
 	if err != nil {
@@ -1111,6 +1461,62 @@ func (ec *executionContext) fieldContext_SuccessfulRegistration_token(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SuccessfulThreadCreation_thread(ctx context.Context, field graphql.CollectedField, obj *model.SuccessfulThreadCreation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SuccessfulThreadCreation_thread(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Thread, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Thread)
+	fc.Result = res
+	return ec.marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SuccessfulThreadCreation_thread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SuccessfulThreadCreation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Thread_id(ctx, field)
+			case "owner":
+				return ec.fieldContext_Thread_owner(ctx, field)
+			case "title":
+				return ec.fieldContext_Thread_title(ctx, field)
+			case "comments":
+				return ec.fieldContext_Thread_comments(ctx, field)
+			case "likes":
+				return ec.fieldContext_Thread_likes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Thread", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Thread_id(ctx context.Context, field graphql.CollectedField, obj *model.Thread) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Thread_id(ctx, field)
 	if err != nil {
@@ -1183,7 +1589,7 @@ func (ec *executionContext) _Thread_owner(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Thread_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1283,7 +1689,7 @@ func (ec *executionContext) _Thread_comments(ctx context.Context, field graphql.
 	}
 	res := resTmp.([]*model.Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Thread_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1337,7 +1743,7 @@ func (ec *executionContext) _Thread_likes(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Thread_likes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1525,7 +1931,7 @@ func (ec *executionContext) _User_threads(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.([]*model.Thread)
 	fc.Result = res
-	return ec.marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐThreadᚄ(ctx, field.Selections, res)
+	return ec.marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThreadᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_threads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1581,7 +1987,7 @@ func (ec *executionContext) _User_comments(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*model.Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3380,6 +3786,78 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateCommentInput(ctx context.Context, obj interface{}) (model.CreateCommentInput, error) {
+	var it model.CreateCommentInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"title", "body"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "title":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "body":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
+			it.Body, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context, obj interface{}) (model.CreateThreadInput, error) {
+	var it model.CreateThreadInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"title", "body"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "title":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "body":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
+			it.Body, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (model.LoginInput, error) {
 	var it model.LoginInput
 	asMap := map[string]interface{}{}
@@ -3482,6 +3960,66 @@ func (ec *executionContext) _BaseError(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._InvalidLoginError(ctx, sel, obj)
+	case model.InvalidThreadCreation:
+		return ec._InvalidThreadCreation(ctx, sel, &obj)
+	case *model.InvalidThreadCreation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InvalidThreadCreation(ctx, sel, obj)
+	case model.InvalidCommentCreation:
+		return ec._InvalidCommentCreation(ctx, sel, &obj)
+	case *model.InvalidCommentCreation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InvalidCommentCreation(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _CreateCommentResponse(ctx context.Context, sel ast.SelectionSet, obj model.CreateCommentResponse) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.SuccessfulCommentCreation:
+		return ec._SuccessfulCommentCreation(ctx, sel, &obj)
+	case *model.SuccessfulCommentCreation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SuccessfulCommentCreation(ctx, sel, obj)
+	case model.InvalidCommentCreation:
+		return ec._InvalidCommentCreation(ctx, sel, &obj)
+	case *model.InvalidCommentCreation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InvalidCommentCreation(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _CreateThreadResponse(ctx context.Context, sel ast.SelectionSet, obj model.CreateThreadResponse) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.SuccessfulThreadCreation:
+		return ec._SuccessfulThreadCreation(ctx, sel, &obj)
+	case *model.SuccessfulThreadCreation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SuccessfulThreadCreation(ctx, sel, obj)
+	case model.InvalidThreadCreation:
+		return ec._InvalidThreadCreation(ctx, sel, &obj)
+	case *model.InvalidThreadCreation:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InvalidThreadCreation(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -3586,6 +4124,34 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var invalidCommentCreationImplementors = []string{"InvalidCommentCreation", "CreateCommentResponse", "BaseError"}
+
+func (ec *executionContext) _InvalidCommentCreation(ctx context.Context, sel ast.SelectionSet, obj *model.InvalidCommentCreation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, invalidCommentCreationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("InvalidCommentCreation")
+		case "message":
+
+			out.Values[i] = ec._InvalidCommentCreation_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var invalidLoginErrorImplementors = []string{"InvalidLoginError", "BaseError", "LoginResponse"}
 
 func (ec *executionContext) _InvalidLoginError(ctx context.Context, sel ast.SelectionSet, obj *model.InvalidLoginError) graphql.Marshaler {
@@ -3642,6 +4208,34 @@ func (ec *executionContext) _InvalidRegistrationError(ctx context.Context, sel a
 	return out
 }
 
+var invalidThreadCreationImplementors = []string{"InvalidThreadCreation", "CreateThreadResponse", "BaseError"}
+
+func (ec *executionContext) _InvalidThreadCreation(ctx context.Context, sel ast.SelectionSet, obj *model.InvalidThreadCreation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, invalidThreadCreationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("InvalidThreadCreation")
+		case "message":
+
+			out.Values[i] = ec._InvalidThreadCreation_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3671,6 +4265,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_login(ctx, field)
+			})
+
+		case "createThread":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createThread(ctx, field)
+			})
+
+		case "createComment":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createComment(ctx, field)
 			})
 
 		default:
@@ -3749,6 +4355,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var successfulCommentCreationImplementors = []string{"SuccessfulCommentCreation", "CreateCommentResponse"}
+
+func (ec *executionContext) _SuccessfulCommentCreation(ctx context.Context, sel ast.SelectionSet, obj *model.SuccessfulCommentCreation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, successfulCommentCreationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SuccessfulCommentCreation")
+		case "thread":
+
+			out.Values[i] = ec._SuccessfulCommentCreation_thread(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var successfulLoginImplementors = []string{"SuccessfulLogin", "LoginResponse"}
 
 func (ec *executionContext) _SuccessfulLogin(ctx context.Context, sel ast.SelectionSet, obj *model.SuccessfulLogin) graphql.Marshaler {
@@ -3790,6 +4424,34 @@ func (ec *executionContext) _SuccessfulRegistration(ctx context.Context, sel ast
 		case "token":
 
 			out.Values[i] = ec._SuccessfulRegistration_token(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var successfulThreadCreationImplementors = []string{"SuccessfulThreadCreation", "CreateThreadResponse"}
+
+func (ec *executionContext) _SuccessfulThreadCreation(ctx context.Context, sel ast.SelectionSet, obj *model.SuccessfulThreadCreation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, successfulThreadCreationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SuccessfulThreadCreation")
+		case "thread":
+
+			out.Values[i] = ec._SuccessfulThreadCreation_thread(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -4250,7 +4912,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Comment) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4274,7 +4936,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWO�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐComment(ctx, sel, v[i])
+			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐComment(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4294,7 +4956,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋyadunutᚋCVWO�
 	return ret
 }
 
-func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4334,7 +4996,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐThreadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Thread) graphql.Marshaler {
+func (ec *executionContext) marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThreadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Thread) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4358,7 +5020,7 @@ func (ec *executionContext) marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWO�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx, sel, v[i])
+			ret[i] = ec.marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4378,7 +5040,7 @@ func (ec *executionContext) marshalNThread2ᚕᚖgithubᚗcomᚋyadunutᚋCVWO�
 	return ret
 }
 
-func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v *model.Thread) graphql.Marshaler {
+func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v *model.Thread) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4388,7 +5050,7 @@ func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋba
 	return ec._Thread(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4412,7 +5074,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋb
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4432,7 +5094,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋyadunutᚋCVWOᚋb
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4721,7 +5383,37 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOLoginInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (*model.LoginInput, error) {
+func (ec *executionContext) unmarshalOCreateCommentInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateCommentInput(ctx context.Context, v interface{}) (*model.CreateCommentInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCreateCommentInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOCreateCommentResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateCommentResponse(ctx context.Context, sel ast.SelectionSet, v model.CreateCommentResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CreateCommentResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCreateThreadInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateThreadInput(ctx context.Context, v interface{}) (*model.CreateThreadInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCreateThreadInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOCreateThreadResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐCreateThreadResponse(ctx context.Context, sel ast.SelectionSet, v model.CreateThreadResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CreateThreadResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOLoginInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (*model.LoginInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -4729,14 +5421,14 @@ func (ec *executionContext) unmarshalOLoginInput2ᚖgithubᚗcomᚋyadunutᚋCVW
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOLoginResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v model.LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalOLoginResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v model.LoginResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._LoginResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalORegisterInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (*model.RegisterInput, error) {
+func (ec *executionContext) unmarshalORegisterInput2ᚖgithubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (*model.RegisterInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -4744,7 +5436,7 @@ func (ec *executionContext) unmarshalORegisterInput2ᚖgithubᚗcomᚋyadunutᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalORegisterResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋapiᚑgatewayᚋinternalᚋgraphᚋmodelᚐRegisterResponse(ctx context.Context, sel ast.SelectionSet, v model.RegisterResponse) graphql.Marshaler {
+func (ec *executionContext) marshalORegisterResponse2githubᚗcomᚋyadunutᚋCVWOᚋbackendᚋgatewayᚋinternalᚋgraphᚋmodelᚐRegisterResponse(ctx context.Context, sel ast.SelectionSet, v model.RegisterResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

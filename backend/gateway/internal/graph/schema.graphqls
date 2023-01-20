@@ -44,7 +44,6 @@ type InvalidRegistrationError implements BaseError {
   message: String!
 }
 
-
 union RegisterResponse = SuccessfulRegistration | InvalidRegistrationError
 
 type SuccessfulLogin {
@@ -55,7 +54,6 @@ type InvalidLoginError implements BaseError {
   message: String!
 }
 
-
 union LoginResponse = SuccessfulLogin | InvalidLoginError
 
 input LoginInput {
@@ -63,10 +61,41 @@ input LoginInput {
   password: String!
 }
 
-
 type Mutation {
   register(input: RegisterInput): RegisterResponse
   login(input: LoginInput): LoginResponse
+  createThread(input: CreateThreadInput): CreateThreadResponse
+  createComment(input: CreateCommentInput): CreateCommentResponse
+}
+
+input CreateThreadInput {
+  title: String!
+  body: String!
+}
+
+union CreateThreadResponse = SuccessfulThreadCreation | InvalidThreadCreation
+
+type SuccessfulThreadCreation {
+  thread: Thread!
+}
+
+type InvalidThreadCreation implements BaseError {
+  message: String!
+}
+
+input CreateCommentInput {
+  title: String!
+  body: String!
+}
+
+union CreateCommentResponse = SuccessfulCommentCreation | InvalidCommentCreation
+
+type SuccessfulCommentCreation {
+  thread: Comment!
+}
+
+type InvalidCommentCreation implements BaseError {
+  message: String!
 }
 
 type Query {
