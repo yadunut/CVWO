@@ -4,7 +4,7 @@
 // - protoc             v3.21.12
 // source: thread.proto
 
-package proto
+package thread
 
 import (
 	context "context"
@@ -22,7 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ThreadServiceClient interface {
-	GetThread(ctx context.Context, in *GetThreadRequest, opts ...grpc.CallOption) (*GetThreadResponse, error)
+	GetThread(ctx context.Context, in *GetThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
+	GetThreads(ctx context.Context, in *GetThreadsRequest, opts ...grpc.CallOption) (*ThreadsResponse, error)
+	CreateThread(ctx context.Context, in *Thread, opts ...grpc.CallOption) (*ThreadResponse, error)
 }
 
 type threadServiceClient struct {
@@ -33,9 +35,27 @@ func NewThreadServiceClient(cc grpc.ClientConnInterface) ThreadServiceClient {
 	return &threadServiceClient{cc}
 }
 
-func (c *threadServiceClient) GetThread(ctx context.Context, in *GetThreadRequest, opts ...grpc.CallOption) (*GetThreadResponse, error) {
-	out := new(GetThreadResponse)
+func (c *threadServiceClient) GetThread(ctx context.Context, in *GetThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error) {
+	out := new(ThreadResponse)
 	err := c.cc.Invoke(ctx, "/thread.ThreadService/GetThread", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) GetThreads(ctx context.Context, in *GetThreadsRequest, opts ...grpc.CallOption) (*ThreadsResponse, error) {
+	out := new(ThreadsResponse)
+	err := c.cc.Invoke(ctx, "/thread.ThreadService/GetThreads", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *threadServiceClient) CreateThread(ctx context.Context, in *Thread, opts ...grpc.CallOption) (*ThreadResponse, error) {
+	out := new(ThreadResponse)
+	err := c.cc.Invoke(ctx, "/thread.ThreadService/CreateThread", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +66,9 @@ func (c *threadServiceClient) GetThread(ctx context.Context, in *GetThreadReques
 // All implementations must embed UnimplementedThreadServiceServer
 // for forward compatibility
 type ThreadServiceServer interface {
-	GetThread(context.Context, *GetThreadRequest) (*GetThreadResponse, error)
+	GetThread(context.Context, *GetThreadRequest) (*ThreadResponse, error)
+	GetThreads(context.Context, *GetThreadsRequest) (*ThreadsResponse, error)
+	CreateThread(context.Context, *Thread) (*ThreadResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -54,8 +76,14 @@ type ThreadServiceServer interface {
 type UnimplementedThreadServiceServer struct {
 }
 
-func (UnimplementedThreadServiceServer) GetThread(context.Context, *GetThreadRequest) (*GetThreadResponse, error) {
+func (UnimplementedThreadServiceServer) GetThread(context.Context, *GetThreadRequest) (*ThreadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThread not implemented")
+}
+func (UnimplementedThreadServiceServer) GetThreads(context.Context, *GetThreadsRequest) (*ThreadsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetThreads not implemented")
+}
+func (UnimplementedThreadServiceServer) CreateThread(context.Context, *Thread) (*ThreadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateThread not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
 
@@ -88,6 +116,42 @@ func _ThreadService_GetThread_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ThreadService_GetThreads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetThreadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).GetThreads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/thread.ThreadService/GetThreads",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).GetThreads(ctx, req.(*GetThreadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ThreadService_CreateThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Thread)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ThreadServiceServer).CreateThread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/thread.ThreadService/CreateThread",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ThreadServiceServer).CreateThread(ctx, req.(*Thread))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ThreadService_ServiceDesc is the grpc.ServiceDesc for ThreadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +162,14 @@ var ThreadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetThread",
 			Handler:    _ThreadService_GetThread_Handler,
+		},
+		{
+			MethodName: "GetThreads",
+			Handler:    _ThreadService_GetThreads_Handler,
+		},
+		{
+			MethodName: "CreateThread",
+			Handler:    _ThreadService_CreateThread_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
