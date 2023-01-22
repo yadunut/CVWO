@@ -7,10 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yadunut/CVWO/backend/gateway/internal/graph"
-	"github.com/yadunut/CVWO/backend/proto"
+	"github.com/yadunut/CVWO/backend/proto/auth"
 )
-
-type key string
 
 const userIdKey = "user_id"
 
@@ -24,9 +22,9 @@ func AuthMiddleware(resolver *graph.Resolver) func(http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 				return
 			}
-			res, err := resolver.AuthClient.Verify(r.Context(), &proto.VerifyRequest{Token: splitToken[1]})
+			res, err := resolver.AuthClient.Verify(r.Context(), &auth.VerifyRequest{Token: splitToken[1]})
 			// if error, do nothing
-			if err != nil || res.Status == proto.ResponseStatus_FAILURE {
+			if err != nil || res.Status == auth.ResponseStatus_FAILURE {
 				next.ServeHTTP(w, r)
 				return
 			}

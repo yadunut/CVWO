@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/yadunut/CVWO/backend/database"
-	"github.com/yadunut/CVWO/backend/proto"
+	proto "github.com/yadunut/CVWO/backend/proto/user"
 	"github.com/yadunut/CVWO/backend/user/internal/config"
 	"go.uber.org/zap"
 )

@@ -8,7 +8,7 @@ import (
 	"github.com/yadunut/CVWO/backend/gateway/internal/config"
 	"github.com/yadunut/CVWO/backend/gateway/internal/graph"
 	"github.com/yadunut/CVWO/backend/gateway/internal/middleware"
-	"github.com/yadunut/CVWO/backend/proto"
+	"github.com/yadunut/CVWO/backend/proto/auth"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -47,5 +47,5 @@ func initResolver(config config.Config) (*graph.Resolver, error) {
 		return nil, err
 	}
 
-	return &graph.Resolver{AuthClient: proto.NewAuthServiceClient(cc)}, nil
+	return &graph.Resolver{AuthClient: auth.NewAuthServiceClient(cc)}, nil
 }

@@ -9,12 +9,12 @@ import (
 	"fmt"
 
 	"github.com/yadunut/CVWO/backend/gateway/internal/graph/model"
-	"github.com/yadunut/CVWO/backend/proto"
+	"github.com/yadunut/CVWO/backend/proto/auth"
 )
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterInput) (model.RegisterResponse, error) {
-	res, err := r.AuthClient.Register(ctx, &proto.RegisterRequest{
+	res, err := r.AuthClient.Register(ctx, &auth.RegisterRequest{
 		Username: input.Username,
 		Email:    input.Email,
 		Password: input.Password,
@@ -22,7 +22,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterIn
 	if err != nil {
 		return nil, err
 	}
-	if res.Status == proto.ResponseStatus_SUCCESS {
+	if res.Status == auth.ResponseStatus_SUCCESS {
 		return model.SuccessfulRegistration{Token: res.Token}, nil
 	} else {
 		return model.InvalidRegistrationError{Message: res.Error}, nil
@@ -31,14 +31,14 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterIn
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (model.LoginResponse, error) {
-	res, err := r.AuthClient.Login(ctx, &proto.LoginRequest{
+	res, err := r.AuthClient.Login(ctx, &auth.LoginRequest{
 		UsernameOrEmail: input.Username,
 		Password:        input.Password,
 	})
 	if err != nil {
 		return nil, err
 	}
-	if res.Status == proto.ResponseStatus_SUCCESS {
+	if res.Status == auth.ResponseStatus_SUCCESS {
 		return model.SuccessfulLogin{Token: res.Token}, nil
 	} else {
 		return model.InvalidLoginError{Message: res.Error}, nil

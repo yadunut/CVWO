@@ -1,6 +1,9 @@
 package graph
 
-import "github.com/yadunut/CVWO/backend/proto"
+import (
+	"github.com/yadunut/CVWO/backend/proto/auth"
+	"github.com/yadunut/CVWO/backend/proto/thread"
+)
 
 //go:generate go run github.com/99designs/gqlgen generate
 
@@ -9,5 +12,6 @@ import "github.com/yadunut/CVWO/backend/proto"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	AuthClient proto.AuthServiceClient
+	AuthClient   auth.AuthServiceClient
+	ThreadClient thread.ThreadServiceClient
 }

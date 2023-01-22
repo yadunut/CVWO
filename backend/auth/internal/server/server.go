@@ -10,7 +10,7 @@ import (
 	"github.com/yadunut/CVWO/backend/auth/internal/utils"
 	"github.com/yadunut/CVWO/backend/database"
 	"github.com/yadunut/CVWO/backend/database/models"
-	"github.com/yadunut/CVWO/backend/proto"
+	proto "github.com/yadunut/CVWO/backend/proto/auth"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )

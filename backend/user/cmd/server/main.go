@@ -7,7 +7,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/yadunut/CVWO/backend/database"
-	"github.com/yadunut/CVWO/backend/proto"
+	proto "github.com/yadunut/CVWO/backend/proto/user"
 	"github.com/yadunut/CVWO/backend/user/internal/config"
 	"github.com/yadunut/CVWO/backend/user/internal/server"
 	"go.uber.org/zap"

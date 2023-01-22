@@ -9,7 +9,7 @@ import (
 	"github.com/yadunut/CVWO/backend/auth/internal/config"
 	"github.com/yadunut/CVWO/backend/auth/internal/server"
 	"github.com/yadunut/CVWO/backend/database"
-	"github.com/yadunut/CVWO/backend/proto"
+	proto "github.com/yadunut/CVWO/backend/proto/auth"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
