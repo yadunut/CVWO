@@ -88,7 +88,7 @@ func (s *Server) Register(ctx context.Context, req *proto.RegisterRequest) (*pro
 		var pgError *pgconn.PgError
 		if errors.As(err, &pgError) {
 			// Postgres error for duplicate
-			if pgError.Code == "23505" {
+			if pgError.Code == utils.PG_DUPLICATE {
 				return &proto.RegisterResponse{Status: proto.ResponseStatus_FAILURE, Error: "username already in use"}, nil
 			}
 			return &proto.RegisterResponse{Status: proto.ResponseStatus_FAILURE, Error: pgError.Message}, nil

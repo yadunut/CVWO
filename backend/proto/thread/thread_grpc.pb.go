@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ThreadServiceClient interface {
 	GetThread(ctx context.Context, in *GetThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
 	GetThreads(ctx context.Context, in *GetThreadsRequest, opts ...grpc.CallOption) (*ThreadsResponse, error)
-	CreateThread(ctx context.Context, in *Thread, opts ...grpc.CallOption) (*ThreadResponse, error)
+	CreateThread(ctx context.Context, in *CreateThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error)
 }
 
 type threadServiceClient struct {
@@ -53,7 +53,7 @@ func (c *threadServiceClient) GetThreads(ctx context.Context, in *GetThreadsRequ
 	return out, nil
 }
 
-func (c *threadServiceClient) CreateThread(ctx context.Context, in *Thread, opts ...grpc.CallOption) (*ThreadResponse, error) {
+func (c *threadServiceClient) CreateThread(ctx context.Context, in *CreateThreadRequest, opts ...grpc.CallOption) (*ThreadResponse, error) {
 	out := new(ThreadResponse)
 	err := c.cc.Invoke(ctx, "/thread.ThreadService/CreateThread", in, out, opts...)
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *threadServiceClient) CreateThread(ctx context.Context, in *Thread, opts
 type ThreadServiceServer interface {
 	GetThread(context.Context, *GetThreadRequest) (*ThreadResponse, error)
 	GetThreads(context.Context, *GetThreadsRequest) (*ThreadsResponse, error)
-	CreateThread(context.Context, *Thread) (*ThreadResponse, error)
+	CreateThread(context.Context, *CreateThreadRequest) (*ThreadResponse, error)
 	mustEmbedUnimplementedThreadServiceServer()
 }
 
@@ -82,7 +82,7 @@ func (UnimplementedThreadServiceServer) GetThread(context.Context, *GetThreadReq
 func (UnimplementedThreadServiceServer) GetThreads(context.Context, *GetThreadsRequest) (*ThreadsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThreads not implemented")
 }
-func (UnimplementedThreadServiceServer) CreateThread(context.Context, *Thread) (*ThreadResponse, error) {
+func (UnimplementedThreadServiceServer) CreateThread(context.Context, *CreateThreadRequest) (*ThreadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateThread not implemented")
 }
 func (UnimplementedThreadServiceServer) mustEmbedUnimplementedThreadServiceServer() {}
@@ -135,7 +135,7 @@ func _ThreadService_GetThreads_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _ThreadService_CreateThread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Thread)
+	in := new(CreateThreadRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func _ThreadService_CreateThread_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/thread.ThreadService/CreateThread",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ThreadServiceServer).CreateThread(ctx, req.(*Thread))
+		return srv.(ThreadServiceServer).CreateThread(ctx, req.(*CreateThreadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

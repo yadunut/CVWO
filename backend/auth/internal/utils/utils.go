@@ -11,6 +11,10 @@ import (
 	"github.com/yadunut/CVWO/backend/auth/internal/config"
 )
 
+const (
+	PG_DUPLICATE = "23505"
+)
+
 func IsAlphaNumeric(s string) bool {
 	re := regexp.MustCompile("^[a-zA-Z0-9]*$")
 	return re.MatchString(s)

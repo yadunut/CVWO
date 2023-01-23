@@ -39,6 +39,14 @@ type Thread struct {
 	Comments []Comment `gorm:"foreignKey:ThreadId"`
 }
 
+func NewThread(OwnerId uuid.UUID, Title string, Body string) Thread {
+	return Thread{
+		OwnerId: OwnerId,
+		Title:   Title,
+		Body:    Body,
+	}
+}
+
 type Comment struct {
 	Model    `gorm:"embedded"`
 	OwnerId  uuid.UUID
